@@ -11,31 +11,39 @@ namespace MLMulticlassExperiment
 {
     public static class ModelBuilder
     {
-        private static string TRAIN_DATA_FILEPATH = @"..\..\..\HotelBookings.tsv";
-        private static string MODEL_FILEPATH = @"..\..\..\MLModel.zip";
+        private static string TRAIN_DATA_FILEPATH = @"C:\Users\xpare\source\repos\MLMulticlassExperiment\MLMulticlassExperiment\data\DataTrainer.csv";
+        private static string TEST_DATA_FILEPATH = @"C:\Users\xpare\source\repos\MLMulticlassExperiment\MLMulticlassExperiment\data\DataTest.csv";
+        private static string MODEL_FILEPATH = @"C:\Users\xpare\source\repos\MLMulticlassExperiment\MLMulticlassExperiment\data\MLModel.zip";
 
-        private static MLContext mlContext = new MLContext(seed: 1);
-        private static uint ExperimentTime = 120;
+        private static MLContext mlContext = new MLContext();
+        private static uint ExperimentTime = 12;
 
         public static void CreateExperiment()
         {
             // Load Data
             var tmpPath = GetAbsolutePath(TRAIN_DATA_FILEPATH);
+            var testPath = GetAbsolutePath(TEST_DATA_FILEPATH);
+
             IDataView trainingDataView = mlContext.Data.LoadFromTextFile<ModelInput>(
                                             path: tmpPath,
                                             hasHeader: true,
-                                            separatorChar: '\t',
+                                            separatorChar: ';',
                                             allowQuoting: true,
                                             allowSparse: false);
 
-            var splitData = mlContext.Data
-                .TrainTestSplit(trainingDataView, testFraction: 0.15);
+            IDataView testingDataView = mlContext.Data.LoadFromTextFile<ModelInput>(
+                                            path: testPath,
+                                            hasHeader: true,
+                                            separatorChar: ';',
+                                            allowQuoting: true,
+                                            allowSparse: false
+                                            );
 
             // STEP 2: Run AutoML experiment
             Console.WriteLine($"Running AutoML Multiclass classification experiment for {ExperimentTime} seconds...");
             ExperimentResult<MulticlassClassificationMetrics> experimentResult = mlContext.Auto()
                 .CreateMulticlassClassificationExperiment(ExperimentTime)
-                .Execute(trainingDataView, labelColumnName: "reservation_status");
+                .Execute(trainingDataView, labelColumnName: "b_futures");
             
             // STEP 3: Print metric from the best model
             RunDetail<MulticlassClassificationMetrics> bestRun = experimentResult.BestRun;
@@ -45,8 +53,7 @@ namespace MLMulticlassExperiment
             PrintMulticlassClassificationMetrics(bestRun.ValidationMetrics);
 
             // STEP 4: Evaluate test data
-            IDataView testDataViewWithBestScore = bestRun.Model.Transform(splitData.TestSet);
-            var testMetrics = mlContext.MulticlassClassification.CrossValidate(testDataViewWithBestScore, bestRun.Estimator, numberOfFolds: 5, labelColumnName: "reservation_status");
+            var testMetrics = mlContext.MulticlassClassification.CrossValidate(testingDataView, bestRun.Estimator, numberOfFolds: 5, labelColumnName: "reservation_status");
             Console.WriteLine($"Metrics of best model on test data --");
             PrintMulticlassClassificationFoldsAverageMetrics(testMetrics);
             

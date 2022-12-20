@@ -4,7 +4,21 @@ namespace MLMulticlassExperiment
 {
     public class ModelInput
     {
-        [ColumnName("id"), LoadColumn(0)]
+
+        [ColumnName("delta"), LoadColumn(0)]
+        public float Delta { get; set; }
+
+        [ColumnName("b_anteriors"), LoadColumn(1)]
+        public string BarresAnteriors { get; set; }
+
+        [ColumnName("sitaucioVWAP"), LoadColumn(2)]
+        public string SituacioVWAP { get; set; }
+
+        [ColumnName("b_futures"), LoadColumn(3)]
+        public string BarresFutures { get; set; }
+
+
+        /*[ColumnName("id"), LoadColumn(0)]
         public float Id { get; set; }
 
 
@@ -101,14 +115,14 @@ namespace MLMulticlassExperiment
 
 
         [ColumnName("agent"), LoadColumn(24)]
-        public string Agent { get; set; }
+        public string Agent { get; set; }*/
 
 
         //[ColumnName("company"), LoadColumn(25)]
         //public string Company { get; set; }
 
 
-        [ColumnName("days_in_waiting_list"), LoadColumn(26)]
+        /*[ColumnName("days_in_waiting_list"), LoadColumn(26)]
         public float Days_in_waiting_list { get; set; }
 
 
@@ -129,7 +143,7 @@ namespace MLMulticlassExperiment
 
 
         [ColumnName("reservation_status"), LoadColumn(31)]
-        public string Reservation_status { get; set; }
+        public string Reservation_status { get; set; }*/
 
 
         //[ColumnName("reservation_status_date"), LoadColumn(32)]
